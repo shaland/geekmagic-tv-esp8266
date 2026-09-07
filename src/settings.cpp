@@ -24,7 +24,11 @@ static bool settingsValidate(Settings &settings) {
         needFix = true;
     }
     if (settings.defaultTheme < 1 || settings.defaultTheme > THEME_COUNT) {
-        settings.brightness = DEFAULT_THEME;
+        settings.defaultTheme = DEFAULT_THEME;
+        needFix = true;
+    }
+    if (settings.rotateSec < 0 || settings.rotateSec > ROTATE_SEC_MAX) {
+        settings.rotateSec = DEFAULT_ROTATE_SEC;
         needFix = true;
     }
 
@@ -53,6 +57,8 @@ void settingsReset(Settings &settings) {
     settings.showWeather = false;
     settings.owmApiKey[0] = '\0';
     settings.owmLocation[0] = '\0';
+
+    settings.rotateSec = DEFAULT_ROTATE_SEC;
 
     settingsSave(settings);
 }

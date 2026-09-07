@@ -39,6 +39,8 @@
 #define DEFAULT_TIMEZONE "CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00"
 #define DEFAULT_BRIGHTNESS 50
 #define DEFAULT_THEME 1
+#define DEFAULT_ROTATE_SEC 0 // Auto page rotation interval in seconds (0 = disabled)
+#define ROTATE_SEC_MAX 3600
 
 // Animation settings
 #define ANIMATION_STEPS 20 // Higher number - smoother animation

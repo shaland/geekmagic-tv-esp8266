@@ -37,6 +37,7 @@ static void handleAppJson() {
     doc["showWeather"] = appSettings.showWeather;
     doc["owmLoc"] = appSettings.owmLocation;
     doc["owmKey"] = appSettings.owmApiKey;
+    doc["rotateSec"] = appSettings.rotateSec;
     if (displayState.timeout != 0) {
         doc["timeout"] = displayState.timeout;
     }
@@ -182,10 +183,22 @@ static void handleSet() {
         }
         displayUpdate(theme);
     } else if (server.hasArg("img")) {
-        urlDecode(server.arg("img").c_str(), displayState.image, DISPLAY_IMG_PATH_BUFFER_SIZE);
-        displayUpdate(3);
-        if (const int timeout = server.arg("timeout").toInt(); timeout > 0)
-            displayState.timeout = time(nullptr) + timeout;
+        char newImage[DISPLAY_IMG_PATH_BUFFER_SIZE];
+        urlDecode(server.arg("img").c_str(), newImage, DISPLAY_IMG_PATH_BUFFER_SIZE);
+        const int timeout = server.arg("timeout").toInt();
+        if (appSettings.rotateSec > 0 && timeout <= 0) {
+            // Auto-rotation owns the display: the uploaded file is already on
+            // disk, so just refresh if this exact image is on screen right now.
+            if (displayState.theme == 3 && strcmp(displayState.image, newImage) == 0) {
+                displayUpdate(3);
+            }
+        } else {
+            strncpy(displayState.image, newImage, DISPLAY_IMG_PATH_BUFFER_SIZE);
+            displayState.image[DISPLAY_IMG_PATH_BUFFER_SIZE - 1] = '\0';
+            displayUpdate(3);
+            if (timeout > 0)
+                displayState.timeout = time(nullptr) + timeout;
+        }
     } else if (server.hasArg("ip")) {
         appSettings.showIP = server.arg("ip") != "false";
         if (displayState.theme == 1) displayUpdate();
@@ -197,6 +210,13 @@ static void handleSet() {
     } else if (server.hasArg("weather")) {
         appSettings.showWeather = server.arg("weather") != "false";
         if (displayState.theme == 1) displayUpdate();
+        settingsSave(appSettings);
+    } else if (server.hasArg("rotateSec")) {
+        int rotateSec = server.arg("rotateSec").toInt();
+        if (rotateSec < 0) rotateSec = 0;
+        if (rotateSec > ROTATE_SEC_MAX) rotateSec = ROTATE_SEC_MAX;
+        appSettings.rotateSec = rotateSec;
+        displayResetRotation();
         settingsSave(appSettings);
     } else if (server.hasArg("tz")) {
         strncpy(appSettings.tz, server.arg("tz").c_str(), sizeof(appSettings.tz));
@@ -339,7 +359,7 @@ static void handleOTAForm() {
     server.sendHeader(F("Content-Encoding"), F("gzip"));
     server.sendHeader(F("Cache-Control"), F("max-age=600"));
     server.send_P(200, CONTENT_TYPE_HTML, reinterpret_cast<const char *>(src_generated_ota_html_gz),
-                  src_generated_index_html_gz_len);
+                  src_generated_ota_html_gz_len);
 }
 
 static void handleOTAUpload() {

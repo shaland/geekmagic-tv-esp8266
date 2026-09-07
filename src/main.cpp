@@ -215,6 +215,7 @@ void setup() {
     delay(2000);
     displayUpdate(appSettings.defaultTheme);
     lastDisplayUpdate = millis();
+    displayResetRotation();
 
     logPrint("Setup complete");
 }
@@ -234,6 +235,7 @@ void loop() {
         const ButtonPress buttonPress = buttonUpdate();
         if (buttonPress == BUTTON_SHORT) {
             displayCycleNextPage();
+            displayResetRotation();
             return;
         }
         if (buttonPress == BUTTON_LONG) {
@@ -246,6 +248,9 @@ void loop() {
 
     ArduinoOTA.handle();
     webserverHandle();
+
+    // Auto page rotation (Clock <-> Image)
+    displayHandleRotation();
 
     // Updates
     if (now - lastDisplayUpdate > DISPLAY_UPDATE_INTERVAL) {

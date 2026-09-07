@@ -151,17 +151,69 @@ void displayUpdate(const int theme, const bool forceClear) {
     }
 }
 
-void displayCycleNextPage() {
-    // Cycle: Clock -> Image (if available) -> Clock
-    if (displayState.theme == 1) {
-        // Currently showing clock, try to switch to image if available
-        if (displayState.image[0] != '\0' && LittleFS.exists(displayState.image)) {
-            displayUpdate(3);
-        }
-    } else {
-        // Currently showing image, switch back to clock
-        displayUpdate(1);
+#define ROTATE_MAX_IMAGES 8
+
+static unsigned long lastRotation = 0;
+static int rotationIndex = 0; // 0 = clock, 1..N = image slot
+
+void displayResetRotation() {
+    lastRotation = millis();
+}
+
+// Collect up to ROTATE_MAX_IMAGES jpg paths from /image, sorted by name so the
+// rotation order is stable across reboots and uploads.
+static int collectRotationImages(String out[]) {
+    int count = 0;
+    Dir dir = LittleFS.openDir("/image");
+    while (dir.next() && count < ROTATE_MAX_IMAGES) {
+        String name = dir.fileName();
+        if (!name.endsWith(".jpg")) continue;
+        out[count++] = String("/image/") + name;
     }
+    for (int i = 1; i < count; i++) {
+        String key = out[i];
+        int j = i - 1;
+        while (j >= 0 && out[j] > key) {
+            out[j + 1] = out[j];
+            j--;
+        }
+        out[j + 1] = key;
+    }
+    return count;
+}
+
+// Advance the rotation by one step: Clock -> image 1 -> ... -> image N -> Clock.
+static void displayRotateAdvance() {
+    String images[ROTATE_MAX_IMAGES];
+    const int imageCount = collectRotationImages(images);
+
+    rotationIndex = (rotationIndex + 1) % (imageCount + 1);
+    if (rotationIndex == 0) {
+        displayUpdate(1);
+    } else {
+        strncpy(displayState.image, images[rotationIndex - 1].c_str(), DISPLAY_IMG_PATH_BUFFER_SIZE);
+        displayState.image[DISPLAY_IMG_PATH_BUFFER_SIZE - 1] = '\0';
+        displayUpdate(3);
+    }
+}
+
+void displayCycleNextPage() {
+    displayRotateAdvance();
+}
+
+// Auto-rotate through Clock and every image in /image every rotateSec seconds.
+// No-op when rotation is disabled, a timed page is active, or the current theme
+// is not one of the rotation pages (Clock / Image).
+void displayHandleRotation() {
+    if (appSettings.rotateSec <= 0) return;
+    if (displayState.timeout != 0) return;
+    if (displayState.theme != 1 && displayState.theme != 3) return;
+
+    const unsigned long now = millis();
+    if (now - lastRotation < static_cast<unsigned long>(appSettings.rotateSec) * 1000UL) return;
+    lastRotation = now;
+
+    displayRotateAdvance();
 }
 
 // Track backlight state for toggle functionality

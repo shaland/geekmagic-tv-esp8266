@@ -7,7 +7,7 @@
 // Firmware model
 #define FIRMWARE_MODEL "aydarik"
 // Firmware version - increment when Settings structure changes
-#define FIRMWARE_VERSION 2
+#define FIRMWARE_VERSION 3
 
 // Semantic version string (replaced by GitHub Action during release builds)
 #ifndef FIRMWARE_VERSION_STRING
@@ -24,6 +24,7 @@ struct Settings {
     bool showWeather;
     char owmApiKey[64];
     char owmLocation[64];
+    int rotateSec; // Auto page rotation interval in seconds (0 = disabled)
 };
 
 // Power cycle reset structure (user-initiated factory reset)

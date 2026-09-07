@@ -28,6 +28,10 @@ void displayUpdate(int theme = 0, bool forceClear = true);
 
 void displayCycleNextPage();
 
+void displayHandleRotation();
+
+void displayResetRotation();
+
 void displayToggleBacklight();
 
 extern DisplayState displayState;
