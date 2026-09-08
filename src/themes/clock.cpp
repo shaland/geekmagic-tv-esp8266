@@ -22,7 +22,7 @@ static void getFormattedSeconds(char *buffer, const size_t bufferSize, const tm 
 }
 
 static void getFormattedDate(char *buffer, const size_t bufferSize, const tm &timeinfo) {
-    strftime(buffer, bufferSize, "%d-%m-%Y", &timeinfo);
+    strftime(buffer, bufferSize, "%Y/%m/%d %a", &timeinfo); // e.g. 2026/09/08 Tue
     buffer[bufferSize - 1] = '\0'; // Ensure null-termination
 }
 
@@ -107,7 +107,7 @@ void themeRenderClock(const bool forceClear, const time_t &now) {
     tft.drawString(currentTime, appSettings.showSec ? DISPLAY_CENTER - 20 : DISPLAY_CENTER, clockY, FONT_DIGIT);
 
     // Draw date
-    char currentDate[16];
+    char currentDate[24];
     getFormattedDate(currentDate, sizeof(currentDate), timeinfo);
     tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
     const int32_t offset = appSettings.showWeather && hasNote ? 65 : appSettings.showWeather || hasNote ? 70 : 75;
