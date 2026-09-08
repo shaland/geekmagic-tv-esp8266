@@ -31,6 +31,12 @@ static bool settingsValidate(Settings &settings) {
         settings.rotateSec = DEFAULT_ROTATE_SEC;
         needFix = true;
     }
+    settings.dateFormat[sizeof(settings.dateFormat) - 1] = '\0';
+    if (settings.dateFormat[0] == '\0') {
+        strncpy(settings.dateFormat, DEFAULT_DATE_FORMAT, sizeof(settings.dateFormat));
+        settings.dateFormat[sizeof(settings.dateFormat) - 1] = '\0';
+        needFix = true;
+    }
 
     if (needFix) {
         settingsSave(settings);
@@ -59,6 +65,9 @@ void settingsReset(Settings &settings) {
     settings.owmLocation[0] = '\0';
 
     settings.rotateSec = DEFAULT_ROTATE_SEC;
+
+    strncpy(settings.dateFormat, DEFAULT_DATE_FORMAT, sizeof(settings.dateFormat));
+    settings.dateFormat[sizeof(settings.dateFormat) - 1] = '\0';
 
     settingsSave(settings);
 }

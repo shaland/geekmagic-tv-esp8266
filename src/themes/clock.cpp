@@ -22,7 +22,9 @@ static void getFormattedSeconds(char *buffer, const size_t bufferSize, const tm 
 }
 
 static void getFormattedDate(char *buffer, const size_t bufferSize, const tm &timeinfo) {
-    strftime(buffer, bufferSize, "%Y/%m/%d %a", &timeinfo); // e.g. 2026/09/08 Tue
+    // strftime pattern is user-configurable (Web UI / /set?dateFmt=). Default in config.h.
+    const char *fmt = appSettings.dateFormat[0] != '\0' ? appSettings.dateFormat : DEFAULT_DATE_FORMAT;
+    strftime(buffer, bufferSize, fmt, &timeinfo);
     buffer[bufferSize - 1] = '\0'; // Ensure null-termination
 }
 

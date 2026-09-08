@@ -41,6 +41,7 @@
 #define DEFAULT_THEME 1
 #define DEFAULT_ROTATE_SEC 0 // Auto page rotation interval in seconds (0 = disabled)
 #define ROTATE_SEC_MAX 3600
+#define DEFAULT_DATE_FORMAT "%Y/%m/%d %a" // strftime pattern for the clock theme date
 
 // Animation settings
 #define ANIMATION_STEPS 20 // Higher number - smoother animation

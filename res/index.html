@@ -279,6 +279,11 @@
                 <input type="number" id="rotateSec" min="0" max="3600" value="0"/>
             </div>
             <button class="button" onclick="setRotate()">Set Rotation</button>
+            <div class="input-group">
+                <label for="dateFmt">Clock date format (strftime, e.g. %Y/%m/%d %a):</label>
+                <input type="text" id="dateFmt" maxlength="23"/>
+            </div>
+            <button class="button" onclick="setDateFmt()">Set Date Format</button>
         </div>
     </div>
     <div class="card">
@@ -424,6 +429,14 @@
         fetch('/set?rotateSec=' + sec)
             .then(response => response.text())
             .then(data => alert('Rotation: ' + data))
+            .catch(error => console.error('Error:', error));
+    }
+
+    function setDateFmt() {
+        const fmt = document.getElementById("dateFmt").value;
+        fetch('/set?dateFmt=' + encodeURIComponent(fmt))
+            .then(response => response.text())
+            .then(data => alert('Date format: ' + data))
             .catch(error => console.error('Error:', error));
     }
 
@@ -577,6 +590,7 @@
             document.getElementById('owmLocation').value = data.owmLoc || "Berlin,DE";
             document.getElementById('owmApiKey').value = data.owmKey || "";
             document.getElementById('rotateSec').value = data.rotateSec || 0;
+            document.getElementById('dateFmt').value = data.dateFmt || '';
         }).catch(error => {
             console.error('Error fetching app data:', error)
             document.getElementById('currentTheme').textContent = 'Unknown';

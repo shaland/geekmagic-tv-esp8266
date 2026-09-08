@@ -38,6 +38,7 @@ static void handleAppJson() {
     doc["owmLoc"] = appSettings.owmLocation;
     doc["owmKey"] = appSettings.owmApiKey;
     doc["rotateSec"] = appSettings.rotateSec;
+    doc["dateFmt"] = appSettings.dateFormat;
     if (displayState.timeout != 0) {
         doc["timeout"] = displayState.timeout;
     }
@@ -217,6 +218,11 @@ static void handleSet() {
         if (rotateSec > ROTATE_SEC_MAX) rotateSec = ROTATE_SEC_MAX;
         appSettings.rotateSec = rotateSec;
         displayResetRotation();
+        settingsSave(appSettings);
+    } else if (server.hasArg("dateFmt")) {
+        urlDecode(server.arg("dateFmt").c_str(), appSettings.dateFormat, sizeof(appSettings.dateFormat));
+        appSettings.dateFormat[sizeof(appSettings.dateFormat) - 1] = '\0';
+        if (displayState.theme == 1) displayUpdate();
         settingsSave(appSettings);
     } else if (server.hasArg("tz")) {
         strncpy(appSettings.tz, server.arg("tz").c_str(), sizeof(appSettings.tz));
