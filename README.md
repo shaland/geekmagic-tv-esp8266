@@ -1,5 +1,7 @@
 # GeekMagic SmallTV — Custom Firmware (shaland fork)
 
+[English](README.md) · [日本語](README.ja.md)
+
 [![License](https://img.shields.io/github/license/shaland/geekmagic-tv-esp8266)](/LICENSE)
 [![Release](https://img.shields.io/github/v/release/shaland/geekmagic-tv-esp8266)](https://github.com/shaland/geekmagic-tv-esp8266/releases)
 
